@@ -71,7 +71,7 @@ This project is released under the [Apache License 2.0](LICENSE). The datasets u
 ```bibtex
 @article{htm2026,
   title   = {A Homeostatic Framework for Measuring Trust in LLM Conversations},
-  author  = {TODO},
+  author  = {Parigi, Paolo and Vaidya, Arjun and Yildiz, Veysi and Ren, Shiming},
   journal = {arXiv preprint arXiv:XXXX.XXXXX},
   year    = {2026}
 }
