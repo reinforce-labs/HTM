@@ -1,0 +1,114 @@
+# Data-generation spec. The pipeline reads only this file for routing and splits.
+#
+#   role:           train | test
+#   count:          target number of conversations
+#   min_turns:      optional; keep only conversations with >= this many turns (a turn = one user/assistant exchange)
+#   label:          teacher + step | step  (test/completion datasets get step only)
+#   add_user_turns: optional; synthesize assistant replies for user-only conversations (MHJ)
+#   dedup_against:  optional; list of datasets whose already-acquired conv_ids to skip
+#   language:       optional; keep only rows whose language field matches (e.g. English)
+
+seed: 0
+val_fraction: 0.10
+prompt_version: v1
+
+judges:
+  teacher:
+    model: deepseek-ai/DeepSeek-V3
+    temperature: 0.0
+    concurrency: 100
+  step:
+    model: deepseek-ai/DeepSeek-V4-Flash
+    temperature: 0.0
+    concurrency: 200
+  victim:
+    model: meta-llama/Meta-Llama-3.1-8B-Instruct
+    temperature: 0.0
+    max_tokens: 1024
+    concurrency: 16
+    system_prompt: "You are a helpful AI Assistant!"
+
+datasets:
+
+  xguard:
+    source: marslabucla/XGuard-Train
+    role: train
+    count: 15000
+    min_turns: 7
+    label: teacher+step
+    adversarial: true
+
+  xguard_synthetic:
+    source: marslabucla/XGuard-Train
+    role: train
+    count: 5000
+    min_turns: 7
+    label: teacher+step
+    adversarial: true
+    add_user_turns: true             # replay user turns
+    dedup_against: [xguard]          # only rows xguard hasn't already acquired
+
+  safedialbench:
+    source: github:drivetosouth/SafeDialBench-Dataset
+    role: train
+    count: 3000
+    min_turns: 7
+    label: teacher+step
+    adversarial: true
+
+  wildchat:
+    source: allenai/WildChat-1M
+    role: train
+    count: 16000
+    min_turns: 7
+    label: teacher+step
+    adversarial: false
+    language: English
+
+  lmsys:
+    source: lmsys/lmsys-chat-1m
+    role: train
+    count: 7000
+    min_turns: 7
+    label: teacher+step
+    adversarial: false
+
+  wildjailbreak:
+    source: allenai/wildjailbreak
+    role: train
+    count: 4000
+    label: step
+    adversarial: true
+
+  mhj:
+    source: ScaleAI/mhj
+    role: test
+    count: 1000
+    label: teacher+step
+    adversarial: true
+    add_user_turns: true
+
+  safemtdata:
+    source: SafeMTData/SafeMTData
+    subset: SafeMTData_1K
+    split: SafeMTData_1K
+    role: test
+    count: 1000
+    label: step
+    adversarial: true
+
+  sharegpt:
+    source: theblackcat102/sharegpt-english
+    role: test
+    count: 1000
+    min_turns: 7
+    label: step
+    adversarial: false
+
+  orbench_hard:
+    source: bench-llm/or-bench
+    subset: or-bench-hard-1k
+    role: test
+    count: 1000
+    label: step
+    adversarial: false

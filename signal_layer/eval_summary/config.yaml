@@ -1,0 +1,35 @@
+prompt: signal_layer/eval_summary/prompts/judge_v2.txt
+
+judges:
+  - name: glm51
+    model: zai-org/GLM-5.1
+    api_base: https://api.deepinfra.com/v1/openai
+    api_key_env: DEEPINFRA_API_KEY
+    temperature: 0.0
+    max_tokens: 1500
+    concurrency: 40
+    timeout_s: 180
+    extra_body:
+      chat_template_kwargs:
+        enable_thinking: false
+
+runs:
+  gepa: signal_layer/evals/runs/final_gepa_summary.json
+  seed: signal_layer/evals/runs/final_seed_summary.json
+
+sampling:
+  mode: capped
+  seed: 0
+  max_chars_per_message: 1200
+  per_dataset:
+    xguard: 50
+    safemtdata: 50
+    xguard_synthetic: 25
+    mhj: 25
+    sharegpt: 50
+    wildchat: 50
+    orbench_hard: 50
+
+paths:
+  sampled: signal_layer/eval_summary/data/sampled.jsonl
+  judgments_dir: signal_layer/eval_summary/data/judgments_v3

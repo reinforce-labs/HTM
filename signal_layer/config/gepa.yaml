@@ -1,0 +1,70 @@
+include_trust: true
+summary_memory: true
+
+student:
+  model: openai/Qwen/Qwen3-1.7B
+  local: false
+  api_base: http://localhost:8000/v1
+  api_key_env: STUDENT_API_KEY
+  temperature: 0.0
+  max_tokens: 512
+
+reflection:
+  model: openai/anthropic/claude-sonnet-4-6
+  api_base: https://api.deepinfra.com/v1/openai
+  api_key_env: DEEPINFRA_API_KEY
+  temperature: 1.0
+  max_tokens: 16000
+
+gepa:
+  auto: heavy                                         
+  reflection_minibatch_size: 3
+  use_merge: false
+  threads: 8
+  seed: 0
+
+metric:
+  detection_weight: 0.6
+  agreement_weight: 0.4
+  threshold: 0.5
+  wrong_side_credit: 0.2
+
+data:                                                 
+  adversarial: [xguard, xguard_synthetic, safemtdata, mhj]
+  benign: [wildchat, orbench_hard]
+
+  optimization_caps:
+    xguard: 25
+    xguard_synthetic: 25
+    safemtdata: 25
+    mhj: 25
+    wildchat: 50
+    orbench_hard: 30
+  synth_split:
+    safemtdata: 60
+    mhj: 38
+    orbench_hard: 40
+  test_adversarial: [xguard, xguard_synthetic, safemtdata, mhj]
+  test_benign: [wildchat, sharegpt, orbench_hard]
+  feedback_size: 80
+  pareto_size: 60
+  seed: 0
+
+dynamics:
+  max_metric_calls: 600                              
+  val_fraction: 0.3                                  
+  timeout_s: 20                                      
+  w_flips: 0.02
+
+evals:
+  datasets:
+    xguard: 1000
+    xguard_synthetic: 1000
+    safemtdata: 1000
+    mhj: 1000
+    wildchat: 1000
+    sharegpt: 1000
+    orbench_hard: 1000
+  fpr_points: [0.01, 0.05]
+
+artifact: signal_layer/prompts/student_optimized_summary.txt

@@ -1,0 +1,45 @@
+# Trust-layer dynamics — evolvable candidate.
+#
+# CONTRACT (fixed; the harness calls these — do not rename or change signatures):
+#   init_state() -> dict            fresh per conversation; carry whatever memory you need
+#   caution(row) -> float           row = numpy array of 6 signals in [0,1], order:
+#                                   [harmful_intent_alignment, refusal_persistence,
+#                                    contextual_reframing, intent_concealment,
+#                                    harmful_compliance, task_legitimacy]
+#                                   (indices 0-4 are RISK, index 5 is REASSURANCE)
+#   step(state, c) -> float         consume this turn's caution c, mutate state,
+#                                   return trust in [0.0, 1.0]
+#
+# The harness feeds turns strictly in order (causality is enforced by construction) and
+# computes control = 1 - trust. Detection = peak control vs a threshold; benign
+# conversations must stay LOW (false alarms are penalized), attacks must rise FAST and
+# EARLY (before the payload turn) and stay risen. Available: np (numpy), math. Must be
+# deterministic — no randomness. Keep it readable; this is an interpretable trust model,
+# not a scoring hack.
+
+ALPHA = 1.0      # weight on risk evidence
+BETA = 0.5       # weight on reassurance (task_legitimacy)
+MEMORY_N = 4     # baseline memory window (turns)
+U_MAX = 0.9      # guarded trust cap (never naive full trust)
+
+
+def init_state():
+    return {"trust": U_MAX, "baseline": U_MAX}
+
+
+def caution(row):
+    risk = max(row[0], row[1], row[2], row[3], row[4])
+    reassurance = row[5]
+    return ALPHA * risk - BETA * reassurance
+
+
+def step(state, c):
+    # baseline = short memory of recent trust
+    state["baseline"] = (1.0 - 1.0 / MEMORY_N) * state["baseline"] + (1.0 / MEMORY_N) * state["trust"]
+    if c > 0:
+        # trust is easy to lose: exponential decay
+        state["trust"] = state["baseline"] * math.exp(-c)
+    else:
+        # and hard to regain: additive recovery, capped
+        state["trust"] = min(U_MAX, state["baseline"] + abs(c))
+    return state["trust"]

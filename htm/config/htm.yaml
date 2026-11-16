@@ -1,0 +1,22 @@
+adapter:
+  risk_step:        []
+  risk_trajectory:
+    - harmful_intent_alignment
+    - refusal_persistence
+    - contextual_reframing
+    - intent_concealment
+    - harmful_compliance
+  reassurance:      [task_legitimacy]
+  reduce: max
+
+caution:
+  alpha: 1.5
+  beta:  0.1
+
+trust:
+  memory_n: 4
+  u_max:    0.9
+
+policy:
+  bands:               [0.3, 0.6, 0.9]
+  deescalation_margin: 0.1

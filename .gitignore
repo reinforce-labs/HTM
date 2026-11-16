@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+htm-venv/
+
+# generated label data
+data/**/*.jsonl
+
+# run logs
+logs/
+
+# GEPA run artifacts
+signal_layer/prompts/best_prompt/
+signal_layer/evals/runs/
+signal_layer/eval_summary/data/
+
+# secrets
+.env
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/
